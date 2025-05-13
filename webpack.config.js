@@ -16,6 +16,10 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.css$/, // 添加对 CSS 文件的支持
+        use: ['style-loader', 'css-loader'] // 使用 style-loader 和 css-loader
       }
     ]
   },

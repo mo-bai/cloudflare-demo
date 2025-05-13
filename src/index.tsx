@@ -1,6 +1,17 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
 import App from './App'
 
+// 配置 Apollo Client
+const client = new ApolloClient({
+  uri: 'http://localhost:8787/graphql', // 替换为你的 GraphQL 后端地址
+  cache: new InMemoryCache()
+})
+
 const root = createRoot(document.getElementById('root') as HTMLElement)
-root.render(<App />)
+root.render(
+  <ApolloProvider client={client}>
+    <App />
+  </ApolloProvider>
+)
