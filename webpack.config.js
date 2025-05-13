@@ -1,5 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack')
 
 module.exports = {
   entry: './src/index.tsx',
@@ -26,6 +27,11 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html'
+    }),
+    new webpack.DefinePlugin({
+      'process.env.GRAPHQL_URI': JSON.stringify(
+        process.env.GRAPHQL_URI || 'http://localhost:8787/graphql'
+      )
     })
   ],
   devServer: {

@@ -5,7 +5,7 @@ import App from './App'
 
 // 配置 Apollo Client
 const client = new ApolloClient({
-  uri: 'http://localhost:8787/graphql', // 替换为你的 GraphQL 后端地址
+  uri: process.env.GRAPHQL_URI, // 替换为你的 GraphQL 后端地址
   cache: new InMemoryCache()
 })
 
