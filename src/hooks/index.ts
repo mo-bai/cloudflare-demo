@@ -68,6 +68,7 @@ export const useChat = () => {
   ) => {
     if (!message.trim()) return
     if (loading) return
+    setAgentError(null)
     let newInput = message.trim()
     let newMessages = [...messages, { role: 'user', content: newInput }]
     setMessages(newMessages)
