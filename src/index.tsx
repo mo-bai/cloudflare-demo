@@ -2,6 +2,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
 import App from './App'
+import './tailwind'
 
 // 配置 Apollo Client
 const client = new ApolloClient({

@@ -1,53 +1,33 @@
-import React, { useEffect, useState } from 'react'
-import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client'
+import React, { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import './app.css'
-// 定义 GraphQL Mutation
-const SEND_MESSAGE = gql`
-  query chat($message: [QueryMessage!]!) {
-    chat(message: $message) {
-      id
-      choices {
-        finish_reason
-        index
-        message {
-          role
-          content
-        }
-      }
-    }
-  }
-`
+import { AGENTS } from './constant'
+import rehypeHighlight from 'rehype-highlight'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+import { useChat } from './hooks'
+import 'highlight.js/styles/github-dark.min.css'
 
+type AgentIds = (typeof AGENTS)[keyof typeof AGENTS]
 const App = () => {
   const [input, setInput] = useState('')
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>(
-    []
-  )
-  const [makeChat, { loading, error }] = useLazyQuery(SEND_MESSAGE)
+  const { messages, loading, error, handleSend, clearMessages } = useChat()
+  const [agentId, setAgentId] = useState<AgentIds | undefined>(undefined)
 
-  const handleSend = async () => {
-    if (!input || loading) return
-    const newInput = input.trim()
-    if (!newInput) return setInput('')
-    let newMessages = [...messages, { role: 'user', content: newInput }]
-    if (error) {
-      newMessages = [{ role: 'user', content: newInput }]
-    }
-    setMessages(newMessages)
-    setInput('')
-    const { data } = await makeChat({ variables: { message: newMessages } })
-    if (data) {
-      setMessages([
-        ...newMessages,
-        {
-          role: data.chat.choices[0].message.role,
-          content: data.chat.choices[0].message.content
-        }
-      ])
+  const changeAgent = (id: AgentIds) => {
+    clearMessages()
+    if (id === agentId) {
+      setAgentId(undefined)
+    } else {
+      setAgentId(id)
     }
   }
 
+  const sendMessage = () => {
+    if (loading) return
+    if (!input.trim()) return
+    handleSend(input, agentId)
+    setInput('')
+  }
   return (
     <div>
       <h1 className='title'>DeepSeek</h1>
@@ -59,7 +39,11 @@ const App = () => {
             key={index}
             style={{ width: '100%' }}>
             <div>
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw, rehypeHighlight]}>
+                {msg.content}
+              </ReactMarkdown>
             </div>
           </div>
         ))}
@@ -95,7 +79,7 @@ const App = () => {
           </div>
         )}
         {!loading && error && (
-          <p className='error'>发生错误: {error.message}</p>
+          <p className='error'>发生错误: {error?.message}</p>
         )}
         {messages.length > 0 && !loading && (
           <div
@@ -104,7 +88,7 @@ const App = () => {
               display: 'flex',
               justifyContent: 'center'
             }}>
-            <button className='newChat-button' onClick={() => setMessages([])}>
+            <button className='newChat-button' onClick={() => clearMessages()}>
               <svg
                 width='18'
                 height='18'
@@ -127,6 +111,31 @@ const App = () => {
         )}
       </div>
       <div className='input_area'>
+        <div className='flex items-center w-full py-2'>
+          <button
+            onClick={() => changeAgent(AGENTS.codeReview)}
+            className={`h-8 text-sm px-2 flex items-center gap-x-1 rounded-full border-none ${
+              agentId == AGENTS.codeReview
+                ? 'text-blue-500 bg-blue-300'
+                : 'text-white bg-gray-800'
+            }`}>
+            <svg
+              viewBox='0 0 24 24'
+              fill='none'
+              xmlns='http://www.w3.org/2000/svg'
+              width='1em'
+              height='1em'
+              focusable='false'
+              aria-hidden='true'>
+              <path
+                fillRule='evenodd'
+                clipRule='evenodd'
+                d='M14.49 4.19a1.5 1.5 0 0 0-2.98-.38l-2 16a1.5 1.5 0 1 0 2.98.38l2-16ZM8.06 5.94a1.5 1.5 0 0 1 0 2.12L4.12 12l3.94 3.94a1.5 1.5 0 1 1-2.12 2.12l-5-5a1.5 1.5 0 0 1 0-2.12l5-5a1.5 1.5 0 0 1 2.12 0Zm7.88 0a1.5 1.5 0 0 1 2.12 0l5 5a1.5 1.5 0 0 1 0 2.12l-5 5a1.5 1.5 0 0 1-2.12-2.12L19.88 12l-3.94-3.94a1.5 1.5 0 0 1 0-2.12Z'
+                fill='currentColor'></path>
+            </svg>
+            <span className='text-xs'>代码审查</span>
+          </button>
+        </div>
         <div style={{ width: '100%', position: 'relative' }}>
           <textarea
             placeholder='输入消息...'
@@ -134,13 +143,13 @@ const App = () => {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
-                handleSend()
+                sendMessage()
               }
             }}
             onChange={(e) => setInput(e.target.value)}
             rows={1}
           />
-          <button onClick={handleSend}>
+          <button onClick={() => sendMessage()} className='submit_button'>
             {loading ? (
               <svg
                 className='loading'

@@ -9,7 +9,7 @@ module.exports = {
     filename: 'bundle.js'
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: ['.ts', '.tsx', '.js', '.css']
   },
   module: {
     rules: [
@@ -20,7 +20,7 @@ module.exports = {
       },
       {
         test: /\.css$/, // 添加对 CSS 文件的支持
-        use: ['style-loader', 'css-loader'] // 使用 style-loader 和 css-loader
+        use: ['style-loader', 'css-loader', 'postcss-loader'] // 使用 style-loader 和 css-loader
       }
     ]
   },
@@ -31,6 +31,9 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.GRAPHQL_URI': JSON.stringify(
         process.env.GRAPHQL_URI || 'http://localhost:8787/graphql'
+      ),
+      'process.env.MASTRA_URI': JSON.stringify(
+        process.env.MASTRA_URI || 'http://localhost:4111'
       )
     })
   ],

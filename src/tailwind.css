@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -38,7 +42,7 @@ body {
   line-height: 1.5;
 }
 
-.input_area button {
+.input_area .submit_button {
   position: absolute;
   right: 0.75rem;
   top: 50%;
@@ -89,6 +93,11 @@ body {
   border-radius: 14px;
 }
 
+.message_area .message > div {
+  background-color: #414158;
+  border-radius: 14px;
+}
+
 .error {
   color: #ff0000;
   font-size: 16px;
@@ -111,4 +120,26 @@ body {
   padding: 2px 14px;
   font-size: 14px;
   line-height: 28px;
+}
+
+.message ol,
+.message ul {
+  padding-left: 20px;
+}
+.message ol {
+  list-style: decimal;
+}
+.message ul {
+  list-style: disc;
+}
+.message li,
+.message p,
+.message span,
+.message pre,
+.message blockquote {
+  margin-bottom: 8px;
+}
+.message ol,
+.message ul {
+  margin-bottom: 16px;
 }
